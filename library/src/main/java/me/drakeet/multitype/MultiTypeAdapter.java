@@ -221,7 +221,7 @@ public class MultiTypeAdapter extends RecyclerView.Adapter<ViewHolder> {
     public final void onBindViewHolder(ViewHolder holder, int position) {
         Object item = items.get(position);
         ItemViewBinder binder = typePool.getItemViewBinder(holder.getItemViewType());
-        binder.onBindViewHolder(holder, item, Collections.EMPTY_LIST);
+        binder.onBindViewHolder(holder, item);
 //        throw new IllegalAccessError("You should not call this method. " +
 //            "Call RecyclerView.Adapter#onBindViewHolder(holder, position, payloads) instead.");
     }
