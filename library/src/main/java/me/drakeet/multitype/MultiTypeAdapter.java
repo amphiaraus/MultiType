@@ -23,6 +23,7 @@ import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -30,6 +31,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * @author drakeet
  */
+@SuppressWarnings("unused")
 public class MultiTypeAdapter extends RecyclerView.Adapter<ViewHolder> {
 
     private static final String TAG = "MultiTypeAdapter";
@@ -59,7 +61,7 @@ public class MultiTypeAdapter extends RecyclerView.Adapter<ViewHolder> {
     /**
      * Constructs a MultiTypeAdapter with a items list and an initial capacity of TypePool.
      *
-     * @param items the items list
+     * @param items           the items list
      * @param initialCapacity the initial capacity of TypePool
      */
     public MultiTypeAdapter(@NonNull List<?> items, int initialCapacity) {
@@ -71,7 +73,7 @@ public class MultiTypeAdapter extends RecyclerView.Adapter<ViewHolder> {
      * Constructs a MultiTypeAdapter with a items list and a TypePool.
      *
      * @param items the items list
-     * @param pool the type pool
+     * @param pool  the type pool
      */
     public MultiTypeAdapter(@NonNull List<?> items, @NonNull TypePool pool) {
         this.items = items;
@@ -89,12 +91,12 @@ public class MultiTypeAdapter extends RecyclerView.Adapter<ViewHolder> {
      * again.
      * </p>
      *
-     * @param clazz the class of a item
+     * @param clazz  the class of a item
      * @param binder the item view binder
-     * @param <T> the item data type
+     * @param <T>    the item data type
      */
     public <T> void register(
-        @NonNull Class<? extends T> clazz, @NonNull ItemViewBinder<T, ?> binder) {
+            @NonNull Class<? extends T> clazz, @NonNull ItemViewBinder<T, ?> binder) {
         checkAndRemoveAllTypesIfNeed(clazz);
         typePool.register(clazz, binder, new DefaultLinker<T>());
     }
@@ -111,7 +113,7 @@ public class MultiTypeAdapter extends RecyclerView.Adapter<ViewHolder> {
      * </p>
      *
      * @param clazz the class of a item
-     * @param <T> the item data type
+     * @param <T>   the item data type
      * @return {@link OneToManyFlow} for setting the binders
      * @see #register(Class, ItemViewBinder)
      */
@@ -140,9 +142,9 @@ public class MultiTypeAdapter extends RecyclerView.Adapter<ViewHolder> {
         final int size = pool.size();
         for (int i = 0; i < size; i++) {
             registerWithoutChecking(
-                pool.getClass(i),
-                pool.getItemViewBinder(i),
-                pool.getLinker(i)
+                    pool.getClass(i),
+                    pool.getItemViewBinder(i),
+                    pool.getLinker(i)
             );
         }
     }
@@ -151,7 +153,7 @@ public class MultiTypeAdapter extends RecyclerView.Adapter<ViewHolder> {
     /**
      * Sets and updates the items atomically and safely. It is recommended to use this method
      * to update the items with a new wrapper list or consider using {@link CopyOnWriteArrayList}.
-     *
+     * <p>
      * <p>Note: If you want to refresh the list views after setting items, you should
      * call {@link RecyclerView.Adapter#notifyDataSetChanged()} by yourself.</p>
      *
@@ -208,17 +210,20 @@ public class MultiTypeAdapter extends RecyclerView.Adapter<ViewHolder> {
      * int, List)} instead.
      * </p>
      *
-     * @param holder The ViewHolder which should be updated to represent the contents of the
-     * item at the given position in the data set.
+     * @param holder   The ViewHolder which should be updated to represent the contents of the
+     *                 item at the given position in the data set.
      * @param position The position of the item within the adapter's data set.
      * @throws IllegalAccessError By default.
      * @deprecated Call {@link RecyclerView.Adapter#onBindViewHolder(ViewHolder, int, List)}
      * instead.
      */
-    @Override @Deprecated
+    @Override @Deprecated @SuppressWarnings("unchecked")
     public final void onBindViewHolder(ViewHolder holder, int position) {
-        throw new IllegalAccessError("You should not call this method. " +
-            "Call RecyclerView.Adapter#onBindViewHolder(holder, position, payloads) instead.");
+        Object item = items.get(position);
+        ItemViewBinder binder = typePool.getItemViewBinder(holder.getItemViewType());
+        binder.onBindViewHolder(holder, item, Collections.EMPTY_LIST);
+//        throw new IllegalAccessError("You should not call this method. " +
+//            "Call RecyclerView.Adapter#onBindViewHolder(holder, position, payloads) instead.");
     }
 
 
@@ -273,7 +278,7 @@ public class MultiTypeAdapter extends RecyclerView.Adapter<ViewHolder> {
      * due to its transient state, and passes the event to its associated item view binder.
      *
      * @param holder The ViewHolder containing the View that could not be recycled due to its
-     * transient state.
+     *               transient state.
      * @return True if the View should be recycled, false otherwise. Note that if this method
      * returns <code>true</code>, RecyclerView <em>will ignore</em> the transient state of
      * the View and recycle it regardless. If this method returns <code>false</code>,
@@ -336,23 +341,25 @@ public class MultiTypeAdapter extends RecyclerView.Adapter<ViewHolder> {
     private void checkAndRemoveAllTypesIfNeed(@NonNull Class<?> clazz) {
         if (typePool.unregister(clazz)) {
             Log.w(TAG, "You have registered the " + clazz.getSimpleName() + " type. " +
-                "It will override the original binder(s).");
+                    "It will override the original binder(s).");
         }
     }
 
 
     <T> void registerWithLinker(
-        @NonNull Class<? extends T> clazz,
-        @NonNull ItemViewBinder<T, ?> binder,
-        @NonNull Linker<T> linker) {
+            @NonNull Class<? extends T> clazz,
+            @NonNull ItemViewBinder<T, ?> binder,
+            @NonNull Linker<T> linker) {
         typePool.register(clazz, binder, linker);
     }
 
 
-    /** A safe register method base on the TypePool's safety for TypePool. */
+    /**
+     * A safe register method base on the TypePool's safety for TypePool.
+     */
     @SuppressWarnings("unchecked")
     private void registerWithoutChecking(
-        @NonNull Class clazz, @NonNull ItemViewBinder itemViewBinder, @NonNull Linker linker) {
+            @NonNull Class clazz, @NonNull ItemViewBinder itemViewBinder, @NonNull Linker linker) {
         checkAndRemoveAllTypesIfNeed(clazz);
         typePool.register(clazz, itemViewBinder, linker);
     }

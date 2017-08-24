@@ -15,8 +15,8 @@
  */
 
 apply plugin: 'com.android.library'
-apply from: './gradle-mvn-push.gradle'
-apply plugin: 'jacoco'
+//apply from: './gradle-mvn-push.gradle'
+//apply plugin: 'jacoco'
 
 android {
     compileSdkVersion 25
@@ -41,3 +41,4 @@ dependencies {
     compile 'com.android.support:support-annotations:25.3.1'
     compile 'com.android.support:recyclerview-v7:25.3.1'
 }
+apply from: '../gradle-mvn-push.gradle'
