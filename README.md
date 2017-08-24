@@ -25,7 +25,7 @@ In your `build.gradle`:
 ```groovy
 dependencies {
     compile 'me.drakeet.multitype:multitype:3.3.0'
-    compile 'org.amphiaraus:MultiType:3.3.2'
+    compile 'org.amphiaraus:MultiType:3.3.3'
 }
 ```
 
